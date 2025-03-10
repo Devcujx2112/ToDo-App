@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:todo_app/AddToDo.dart';
 import 'package:todo_app/Drawer.dart';
 
@@ -13,11 +14,35 @@ class MainScreenUser extends StatefulWidget {
 
 class _MainScreenUserState extends State<MainScreenUser> {
   String text = 'Hello World';
-  List<String> listAction = ['An', 'Ngu', 'Ia', 'Du'];
+  List<String> listAction = [];
+
+  @override
+  void initState() {
+    super.initState();
+    LoadDataLocal();  // Gọi để tải dữ liệu khi ứng dụng mở lại
+  }
 
   void ChangeText({required String todoText}) {
+    if(todoText.isNotEmpty){
+      setState(() {
+        listAction.insert(0, todoText);
+      });
+    }
+    UpdateDataLocal();
+    Navigator.pop(context);
+  }
+
+  void UpdateDataLocal() async{
+    final SharedPreferences preferences = await SharedPreferences.getInstance();
+    await preferences.setStringList('items', listAction);
+    LoadDataLocal();
+  }
+
+  void LoadDataLocal() async{
+    final SharedPreferences preferences = await SharedPreferences.getInstance();
+    listAction = (preferences.getStringList('items')?? []).toList();
     setState(() {
-      text = todoText;
+
     });
   }
 
@@ -62,6 +87,20 @@ class _MainScreenUserState extends State<MainScreenUser> {
               itemCount: listAction.length,
               itemBuilder: (BuildContext context, int index) {
                 return ListTile(
+                  onTap: (){
+                    showModalBottomSheet(context: context, builder: (context){
+                      return Container(
+                        padding: EdgeInsets.all(20),
+                        child: ElevatedButton(onPressed: (){
+                          setState(() {
+                            listAction.removeAt(index);
+                          });
+                          UpdateDataLocal();
+                          Navigator.pop(context);
+                        }, child: Text('Remove')),
+                      );
+                    });
+                  },
                   title: Text(listAction[index]),
                   trailing: Icon(Icons.add),
                   leading: Icon(Icons.arrow_back),
