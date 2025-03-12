@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class AddToDo extends StatefulWidget {
-
   void Function({required String todoText}) changeText;
 
   AddToDo({super.key, required this.changeText});
@@ -22,6 +21,7 @@ class _AddToDoState extends State<AddToDo> {
           children: [
             Text("Add ToDo: "),
             TextField(
+              autofocus: true,
               decoration: InputDecoration(
                   hintText: 'Nhập tên của bạn',
                   icon: Icon(Icons.verified_user)),
@@ -30,7 +30,9 @@ class _AddToDoState extends State<AddToDo> {
             ),
             ElevatedButton(
                 onPressed: () {
-                  widget.changeText(todoText: txt_title.text);
+                  if (txt_title.text.isNotEmpty) {
+                    widget.changeText(todoText: txt_title.text);
+                  }
                   txt_title.text = '';
                 },
                 child: Text('Insert')),

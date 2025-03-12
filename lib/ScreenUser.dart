@@ -19,31 +19,45 @@ class _MainScreenUserState extends State<MainScreenUser> {
   @override
   void initState() {
     super.initState();
-    LoadDataLocal();  // Gọi để tải dữ liệu khi ứng dụng mở lại
+    LoadDataLocal();
   }
 
   void ChangeText({required String todoText}) {
-    if(todoText.isNotEmpty){
+      if (listAction.contains(todoText)) {
+        showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: Text('Duplicate'),
+                content: Text('Data da dc tao'),
+                actions: [InkWell(onTap: () {
+                  Navigator.pop(context);
+                },
+                  child: Text('Close'),
+                )
+                ],
+              );
+            });
+        return;
+      }
       setState(() {
         listAction.insert(0, todoText);
       });
-    }
-    UpdateDataLocal();
+      UpdateDataLocal();
+
     Navigator.pop(context);
   }
 
-  void UpdateDataLocal() async{
+  void UpdateDataLocal() async {
     final SharedPreferences preferences = await SharedPreferences.getInstance();
     await preferences.setStringList('items', listAction);
     LoadDataLocal();
   }
 
-  void LoadDataLocal() async{
+  void LoadDataLocal() async {
     final SharedPreferences preferences = await SharedPreferences.getInstance();
-    listAction = (preferences.getStringList('items')?? []).toList();
-    setState(() {
-
-    });
+    listAction = (preferences.getStringList('items') ?? []).toList();
+    setState(() {});
   }
 
   @override
@@ -63,7 +77,9 @@ class _MainScreenUserState extends State<MainScreenUser> {
                         context: context,
                         builder: (context) {
                           return Padding(
-                              padding: MediaQuery.of(context).viewInsets,
+                              padding: MediaQuery
+                                  .of(context)
+                                  .viewInsets,
                               child: Container(
                                 padding: EdgeInsets.all(20),
                                 height: 200,
@@ -87,19 +103,23 @@ class _MainScreenUserState extends State<MainScreenUser> {
               itemCount: listAction.length,
               itemBuilder: (BuildContext context, int index) {
                 return ListTile(
-                  onTap: (){
-                    showModalBottomSheet(context: context, builder: (context){
-                      return Container(
-                        padding: EdgeInsets.all(20),
-                        child: ElevatedButton(onPressed: (){
-                          setState(() {
-                            listAction.removeAt(index);
-                          });
-                          UpdateDataLocal();
-                          Navigator.pop(context);
-                        }, child: Text('Remove')),
-                      );
-                    });
+                  onTap: () {
+                    showModalBottomSheet(
+                        context: context,
+                        builder: (context) {
+                          return Container(
+                            padding: EdgeInsets.all(20),
+                            child: ElevatedButton(
+                                onPressed: () {
+                                  setState(() {
+                                    listAction.removeAt(index);
+                                  });
+                                  UpdateDataLocal();
+                                  Navigator.pop(context);
+                                },
+                                child: Text('Remove')),
+                          );
+                        });
                   },
                   title: Text(listAction[index]),
                   trailing: Icon(Icons.add),
