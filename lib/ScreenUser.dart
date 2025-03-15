@@ -4,6 +4,7 @@ import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:todo_app/AddToDo.dart';
 import 'package:todo_app/Drawer.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class MainScreenUser extends StatefulWidget {
   const MainScreenUser({super.key});
@@ -23,27 +24,29 @@ class _MainScreenUserState extends State<MainScreenUser> {
   }
 
   void ChangeText({required String todoText}) {
-      if (listAction.contains(todoText)) {
-        showDialog(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                title: Text('Duplicate'),
-                content: Text('Data da dc tao'),
-                actions: [InkWell(onTap: () {
-                  Navigator.pop(context);
-                },
+    if (listAction.contains(todoText)) {
+      showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: Text('Duplicate'),
+              content: Text('Data da dc tao'),
+              actions: [
+                InkWell(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
                   child: Text('Close'),
                 )
-                ],
-              );
-            });
-        return;
-      }
-      setState(() {
-        listAction.insert(0, todoText);
-      });
-      UpdateDataLocal();
+              ],
+            );
+          });
+      return;
+    }
+    setState(() {
+      listAction.insert(0, todoText);
+    });
+    UpdateDataLocal();
 
     Navigator.pop(context);
   }
@@ -63,7 +66,33 @@ class _MainScreenUserState extends State<MainScreenUser> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        drawer: DrawerCustom(),
+        drawer: Drawer(
+            child: Column(
+          children: [
+            Container(
+              color: Colors.blueGrey[900],
+              height: 200,
+              width: double.infinity,
+              child: Center(
+                child: Text(
+                  "ToDo App",
+                  style: TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+            ListTile(
+              onTap: () {
+                launchUrl(Uri.parse("https://www.google.com"));
+              },
+              leading: Icon(Icons.person),
+              title: Text(
+                'About Me',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            )
+          ],
+        )),
         appBar: AppBar(
           centerTitle: true,
           title: Text('Todo App'),
@@ -77,9 +106,7 @@ class _MainScreenUserState extends State<MainScreenUser> {
                         context: context,
                         builder: (context) {
                           return Padding(
-                              padding: MediaQuery
-                                  .of(context)
-                                  .viewInsets,
+                              padding: MediaQuery.of(context).viewInsets,
                               child: Container(
                                 padding: EdgeInsets.all(20),
                                 height: 200,
